@@ -9,13 +9,21 @@ screen = pygame.display.set_mode((Drawin.Drawin.world_size,Drawin.Drawin.world_s
 pygame.display.set_caption("Particle filter simulation")
 
 
-def predict(rob, parts):
-    angle = random.random() * 0.8 - 0.4
-    dist = random.random() * 50.0 + 10
+def predict_auto(rob, parts):
+    angle = random.random() * 1  - 0.5
+    dist = random.random() * 50 + 10
     rob1 = rob.move(angle, dist)
     p1 = []
     for i in range(0, len(parts)):
         p1.append(parts[i].move(angle, dist))
+    return rob1, p1
+
+
+def predict(rob, parts, rotation_time, motion_time):
+    rob1 = rob.move(rotation_time, motion_time)
+    p1 = []
+    for i in range(0, len(parts)):
+        p1.append(parts[i].move(rotation_time, motion_time))
     return rob1, p1
 
 
@@ -47,16 +55,16 @@ def correct(rob, parts):
 
 
 myrobot = Robot.Robot(False)
-myrobot.set(200,200, 0)
-myrobot.set_noise(5.0, 0.1, 10.0)
+myrobot.set(200, 200, 0.0)
+myrobot.set_noise(0.5, 0.1, 15.0)
 
-N = 500
+N = 800
 p = []
 for i in range(0, N):
     particle = Robot.Robot(True)
-    particle.set_noise(5.0, 0.1, 10.0)
-    #particle.set(190, 190, 0.1)
+    particle.set_noise(0.5, 0.1, 15.0)
     p.append(particle)
+
 
 Drawin.Drawin.clear(screen)
 Drawin.Drawin.draw(screen, myrobot, p)
@@ -72,14 +80,19 @@ while mainloop:
         if event.type == KEYDOWN and event.key == pygame.K_LCTRL: # Run correction step on CTRL key press
             print("correct")
             p = correct(myrobot, p)
+            print(Robot.Robot.eval(myrobot, p))
             Drawin.Drawin.clear(screen)
             Drawin.Drawin.draw(screen, myrobot, p)
         if event.type == KEYDOWN and event.key == pygame.K_LEFT: # Run prediction step on Left Arrow key press
             print("predict")
-            myrobot, p = predict(myrobot, p)
+            myrobot, p = predict_auto(myrobot, p)
             #print(p)
             Drawin.Drawin.clear(screen)
             Drawin.Drawin.draw(screen, myrobot, p)
+        if event.type == KEYDOWN and event.key == pygame.K_UP: # Get estimate on Up Arrow key press
+            err = Robot.Robot.eval(myrobot, p)
+            print("Position error: {:.2f}".format(err))
+
 
 
 pygame.quit()

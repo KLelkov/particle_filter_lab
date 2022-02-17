@@ -63,8 +63,8 @@ class Robot:
         # move, and add randomness to the motion command
         dist = float(forward) + random.gauss(0.0, self.forward_noise)
         #print(self.orientation)
-        x = self.x + (cos(self.orientation) * dist)
-        y = self.y + (sin(self.orientation) * dist)
+        x = self.x + (cos(orientation) * dist)
+        y = self.y + (sin(orientation) * dist)
         x %= world_size    # cyclic truncate
         y %= world_size
         self.path.append((x, y))
@@ -93,12 +93,23 @@ class Robot:
     def __repr__(self):
         return '[x=%.6s y=%.6s orient=%.6s]' % (str(self.x), str(self.y), str(self.orientation))
 
-
+    @staticmethod
     def eval(r, p):
-        sum = 0.0;
+        # find weights
+        z = r.sense()
+        w = []
+        for i in range(0, len(p)):
+            w.append(p[i].measurement_prob(z))
+        s = sum(w)
+        a = []
+        for i in range(0, len(p)):
+            a.append(w[i] / s)
+
+        # find weighter sum
+        s = 0.0;
         for i in range(len(p)): # calculate mean error
             dx = (p[i].x - r.x + (world_size/2.0)) % world_size - (world_size/2.0)
             dy = (p[i].y - r.y + (world_size/2.0)) % world_size - (world_size/2.0)
             err = sqrt(dx * dx + dy * dy)
-            sum += err
-        return sum / float(len(p))
+            s += err * a[i]
+        return s
