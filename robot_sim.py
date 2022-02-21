@@ -1,16 +1,20 @@
-import pygame, sys, random
+import pygame
+import sys
+import random
 from pygame.locals import *
 from math import *
-import Robot, Drawin
+import Robot
+import Drawin
 
 pygame.init()
 
-screen = pygame.display.set_mode((Drawin.Drawin.world_size,Drawin.Drawin.world_size), 0, 32)
+screen = pygame.display.set_mode((Drawin.Drawin.world_size,
+                                 Drawin.Drawin.world_size), 0, 32)
 pygame.display.set_caption("Particle filter simulation")
 
 
 def predict_auto(rob, parts):
-    angle = random.random() * 1  - 0.5
+    angle = random.random() * 1 - 0.5
     dist = random.random() * 50 + 10
     rob1 = rob.move(angle, dist)
     p1 = []
@@ -50,7 +54,6 @@ def correct(rob, parts):
             if index >= N:
                 index = 0
         p2.append(parts[index])
-        #print(parts[index].x)
     return p2
 
 
@@ -75,24 +78,25 @@ while mainloop:
     for event in pygame.event.get():
         if event.type == QUIT:
             mainloop = False
-        if event.type == KEYDOWN and event.key == pygame.K_SPACE: # Take a screenshot on SPACE key press
+        if event.type == KEYDOWN and event.key == pygame.K_SPACE:
+            # Take a screenshot on SPACE key press
             pygame.image.save(screen, "particle_screenshot.png")
-        if event.type == KEYDOWN and event.key == pygame.K_LCTRL: # Run correction step on CTRL key press
+        if event.type == KEYDOWN and event.key == pygame.K_LCTRL:
+            # Run correction step on CTRL key press
             print("correct")
             p = correct(myrobot, p)
             print(Robot.Robot.eval(myrobot, p))
             Drawin.Drawin.clear(screen)
             Drawin.Drawin.draw(screen, myrobot, p)
-        if event.type == KEYDOWN and event.key == pygame.K_LEFT: # Run prediction step on Left Arrow key press
+        if event.type == KEYDOWN and event.key == pygame.K_LEFT:
+            # Run prediction step on Left Arrow key press
             print("predict")
             myrobot, p = predict_auto(myrobot, p)
-            #print(p)
             Drawin.Drawin.clear(screen)
             Drawin.Drawin.draw(screen, myrobot, p)
-        if event.type == KEYDOWN and event.key == pygame.K_UP: # Get estimate on Up Arrow key press
+        if event.type == KEYDOWN and event.key == pygame.K_UP:
+            # Get estimate on Up Arrow key press
             err = Robot.Robot.eval(myrobot, p)
             print("Position error: {:.2f}".format(err))
-
-
 
 pygame.quit()
