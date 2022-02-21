@@ -23,11 +23,11 @@ def predict_auto(rob, parts):
     return rob1, p1
 
 
-def predict(rob, parts, rotation_time, motion_time):
-    rob1 = rob.move(rotation_time, motion_time)
+def predict(rob, parts, rot, forw):
+    rob1 = rob.move(rot, forw)
     p1 = []
     for i in range(0, len(parts)):
-        p1.append(parts[i].move(rotation_time, motion_time))
+        p1.append(parts[i].move(rot, forw))
     return rob1, p1
 
 
